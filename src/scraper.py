@@ -294,7 +294,7 @@ class Scraper:
             "c0-e10=string:1\n"
             "c0-e11=string:0\n"
             "c0-e12=string:0\n"
-            f"c0-e13=string:{"I" if self.return_date is None else "IV"}\n"
+f"c0-e13=string:{'I' if self.return_date is None else 'IV'}\n"
             "c0-e14=string:\n"
             "c0-param0=Object_Object:{atendo:reference:c0-e1, sinEnlace:reference:c0-e2, "
             "plazaH:reference:c0-e3, tipoFranjaI:reference:c0-e4, tipoFranjaV:reference:c0-e5, "
