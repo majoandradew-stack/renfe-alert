@@ -11,7 +11,7 @@ from src.cli import main
 # ==========================================
 
 ORIGEN = "Toledo"
-DESTINO = "Madrid"
+DESTINO = "Madrid Pta. Atocha - Almudena Grandes"
 FECHA = "11/11/2026"
 HORA = "07:25"
 
