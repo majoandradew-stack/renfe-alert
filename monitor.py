@@ -11,6 +11,7 @@ from src.cli import main
 # TUS ALERTAS: EDITA SOLO ESTA LISTA
 # ==========================================
 
+
 ALERTAS = [
     {
         "origen": "Toledo",
@@ -19,12 +20,13 @@ ALERTAS = [
         "hora": "07:25",
     },
     {
-        "origen": "Toledo",
-        "destino": "Madrid Pta. Atocha - Almudena Grandes",
+        "origen": "Madrid Pta. Atocha - Almudena Grandes",
+        "destino": "Toledo",
         "fecha": "14/10/2026",
         "hora": "18:45",
     },
 ]
+
 
 ARCHIVO_ESTADO = Path("state.json")
 
