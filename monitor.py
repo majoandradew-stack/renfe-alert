@@ -1,30 +1,33 @@
 
 import json
 import os
+from datetime import datetime
 from pathlib import Path
 
 import requests
 from src.cli import main
 
 # ==========================================
-# CONFIGURACIÓN DEL TREN
+# TUS ALERTAS: EDITA SOLO ESTA LISTA
 # ==========================================
 
-ORIGEN = "Toledo"
-DESTINO = "Madrid Pta. Atocha - Almudena Grandes"
-FECHA = "11/11/2026"
-HORA = "07:25"
+ALERTAS = [
+    {
+        "origen": "Toledo",
+        "destino": "Madrid Pta. Atocha - Almudena Grandes",
+        "fecha": "25/11/2026",
+        "hora": "07:25",
+    },
+    {
+        "origen": "Toledo",
+        "destino": "Madrid Pta. Atocha - Almudena Grandes",
+        "fecha": "14/10/2026",
+        "hora": "18:45",
+    },
+]
 
-# Archivo para recordar la última disponibilidad
 ARCHIVO_ESTADO = Path("state.json")
 
-# Identificador único de esta búsqueda
-CLAVE = f"{ORIGEN}|{DESTINO}|{FECHA}|{HORA}"
-
-
-# ==========================================
-# TELEGRAM
-# ==========================================
 
 def avisar_telegram(mensaje):
     token = os.environ["TELEGRAM_TOKEN"]
@@ -34,17 +37,12 @@ def avisar_telegram(mensaje):
         f"https://api.telegram.org/bot{token}/sendMessage",
         json={
             "chat_id": chat_id,
-            "text": mensaje
+            "text": mensaje,
         },
-        timeout=30
+        timeout=30,
     )
-
     respuesta.raise_for_status()
 
-
-# ==========================================
-# RECORDAR DISPONIBILIDAD
-# ==========================================
 
 def leer_estado():
     if not ARCHIVO_ESTADO.exists():
@@ -60,51 +58,61 @@ def guardar_estado(estado):
     with ARCHIVO_ESTADO.open(
         "w", encoding="utf-8"
     ) as archivo:
-        json.dump(estado, archivo, indent=2)
+        json.dump(
+            estado,
+            archivo,
+            indent=2,
+            ensure_ascii=False,
+        )
 
 
-# ==========================================
-# BUSCAR PLAZAS
-# ==========================================
+def comprobar_alerta(alerta, estado):
+    origen = alerta["origen"]
+    destino = alerta["destino"]
+    fecha = alerta["fecha"]
+    hora = alerta["hora"]
 
-def buscar_tren():
-    print(
-        f"Buscando {ORIGEN} -> {DESTINO}, "
-        f"{FECHA}, {HORA}"
+    clave = f"{origen}|{destino}|{fecha}|{hora}"
+
+    print(f"\nBuscando {origen} -> {destino}")
+    print(f"Fecha: {fecha}, hora: {hora}")
+
+    fecha_tren = datetime.strptime(
+        f"{fecha} {hora}", "%d/%m/%Y %H:%M"
     )
+
+    if fecha_tren <= datetime.now():
+        print("Tren pasado. Se omite.")
+        return
 
     trenes = main(
-        origin=ORIGEN,
-        destination=DESTINO,
-        departure_date=FECHA,
-        from_time=HORA
+        origin=origen,
+        destination=destino,
+        departure_date=fecha,
+        from_time=hora,
     )
 
-    # Si la consulta no devuelve resultados,
-    # no cambiamos el estado anterior.
     if trenes is None:
         raise RuntimeError(
-            "Renfe no devolvió trenes. "
-            "No se modifica el estado."
+            "Renfe no devolvió trenes para esta búsqueda."
         )
 
     encontrados = [
-        tren for tren in trenes
-        if tren.departure_time.strftime("%H:%M") == HORA
+        tren
+        for tren in trenes
+        if tren.departure_time.strftime("%H:%M") == hora
     ]
 
     if not encontrados:
         raise RuntimeError(
-            "No se encontró el tren solicitado. "
-            "Comprueba fecha y horario."
+            "No se encontró un tren con esa hora exacta."
         )
 
     disponible = any(
         tren.available for tren in encontrados
     )
 
-    estado = leer_estado()
-    disponible_antes = estado.get(CLAVE, False)
+    disponible_antes = estado.get(clave, False)
 
     print(f"Disponible ahora: {disponible}")
     print(f"Disponible antes: {disponible_antes}")
@@ -112,10 +120,10 @@ def buscar_tren():
     if disponible and not disponible_antes:
         mensaje = (
             "🚨🚆 ¡PLAZA RENFE DISPONIBLE!\n\n"
-            f"📍 {ORIGEN} → {DESTINO}\n"
-            f"📅 {FECHA}\n"
-            f"🕐 Salida: {HORA}\n\n"
-            "🎟️ Entra en Renfe para comprar:\n"
+            f"📍 {origen} → {destino}\n"
+            f"📅 {fecha}\n"
+            f"🕐 Salida: {hora}\n\n"
+            "🎟️ Compra tu billete:\n"
             "https://www.renfe.com"
         )
 
@@ -124,23 +132,48 @@ def buscar_tren():
 
     elif disponible:
         print(
-            "Sigue disponible. "
-            "No se envía una alerta repetida."
+            "Sigue disponible. No se repite la alerta."
         )
 
     elif disponible_antes:
         print(
-            "Se ha agotado nuevamente. "
-            "Avisaremos si reaparece."
+            "Se agotó nuevamente. "
+            "Avisaremos si reaparecen plazas."
         )
 
     else:
         print("Sin plazas disponibles.")
 
-    estado[CLAVE] = disponible
+    estado[clave] = disponible
     guardar_estado(estado)
 
 
+def buscar_trenes():
+    estado = leer_estado()
+    errores = []
+
+    for alerta in ALERTAS:
+        try:
+            comprobar_alerta(alerta, estado)
+
+        except Exception as error:
+            descripcion = (
+                f"{alerta['fecha']} "
+                f"{alerta['hora']}: {error}"
+            )
+            print(f"ERROR: {descripcion}")
+            errores.append(descripcion)
+
+    if errores:
+        raise RuntimeError(
+            "Algunas búsquedas fallaron:\n"
+            + "\n".join(errores)
+        )
+
+    print("\nComprobación finalizada correctamente.")
+
+
 if __name__ == "__main__":
-    buscar_tren()
+    buscar_trenes()
+
 
