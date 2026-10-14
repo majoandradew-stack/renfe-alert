@@ -89,12 +89,14 @@ def comprobar_alerta(alerta, estado):
         print("Tren pasado. Se omite.")
         return
 
+
+
     
-trenes = main(
-    origin=origen,
-    destination=destino,
-    departure_date=fecha,
-)
+    trenes = main(
+        origin=origen,
+        destination=destino,
+        departure_date=fecha,
+    )
 
     if trenes is None:
         raise RuntimeError(
@@ -111,6 +113,7 @@ trenes = main(
         raise RuntimeError(
             "No se encontró un tren con esa hora exacta."
         )
+
 
     disponible = any(
         tren.available for tren in encontrados
