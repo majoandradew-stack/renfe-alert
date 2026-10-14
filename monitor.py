@@ -171,11 +171,13 @@ def buscar_trenes():
             print(f"ERROR: {descripcion}")
             errores.append(descripcion)
 
+    
     if errores:
-        raise RuntimeError(
-            "Algunas búsquedas fallaron:\n"
-            + "\n".join(errores)
-        )
+        print("\nATENCIÓN: Algunas búsquedas no pudieron comprobarse:")
+        for error in errores:
+            print(error)
+        print("Se volverán a intentar en la próxima ejecución.")
+
 
     print("\nComprobación finalizada correctamente.")
 
