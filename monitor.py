@@ -20,10 +20,10 @@ ALERTAS = [
         "hora": "07:25",
     },
     {
-        "origen": "Madrid Pta. Atocha - Almudena Grandes",
-        "destino": "Toledo",
-        "fecha": "14/10/2026",
-        "hora": "18:45",
+        "origen": "Toledo",
+        "destino": "Madrid Pta. Atocha - Almudena Grandes",
+        "fecha": "05/11/2026",
+        "hora": "07:25",
     },
 ]
 
