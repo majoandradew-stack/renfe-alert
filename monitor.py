@@ -12,20 +12,22 @@ from src.cli import main
 # ==========================================
 
 
+
 ALERTAS = [
-    {
-        "origen": "Toledo",
-        "destino": "Madrid Pta. Atocha - Almudena Grandes",
-        "fecha": "25/11/2026",
-        "hora": "07:25",
-    },
     {
         "origen": "Toledo",
         "destino": "Madrid Pta. Atocha - Almudena Grandes",
         "fecha": "05/11/2026",
         "hora": "07:25",
     },
+    {
+        "origen": "Toledo",
+        "destino": "Madrid Pta. Atocha - Almudena Grandes",
+        "fecha": "25/11/2026",
+        "hora": "07:25",
+    },
 ]
+
 
 
 ARCHIVO_ESTADO = Path("state.json")
