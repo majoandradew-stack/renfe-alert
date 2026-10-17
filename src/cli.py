@@ -52,9 +52,17 @@ def main(origin: str, destination: str, departure_date: str, from_time: str = No
             console.print("[i][red]Formato de tiempo invalido. Usa HH:MM[/i]")
             return
 
+    
+    print(f"DIAGNOSTICO: cantidad de trenes recibidos = {len(trains)}")
+    print(
+        "DIAGNOSTICO: horarios recibidos =",
+        [t.departure_time.strftime("%H:%M") for t in trains]
+    )
+
     if not trains:
         console.print("[i][red]No se han encontrado trenes para ese filtro[/i]")
         return
+
     validated_date_str = ctx["departure_date"].date.strftime('%d/%m/%Y')
     # Crear tabla
     title = f"Trenes de {origin} a {destination} - {validated_date_str}"
