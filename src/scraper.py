@@ -71,8 +71,11 @@ class Scraper:
         self._do_search()
         self._do_get_dwr_token()
         self._do_update_session_objects()
+        
         trains = self._do_get_train_list()
+        print("DIAGNOSTICO RENFE: respuesta =", str(trains)[:1500])
         return self._parse_train_list(trains)
+
 
     def _parse_train_list(self, trains: Dict[str, Any]) -> List[TrainRideRecord]:
         """Creates the list of train objects from the JSON
